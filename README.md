@@ -89,10 +89,10 @@ The final graph is selected from the reciprocal and completed tree-regularized g
 
 ```bibtex
 @article{xian2026mdlgbtrsc,
-  title   = {Minimum Description Length based Granular-Ball Tree Regularization for Spectral Clustering},
-  author  = {Xian, Zeqiang and Liu, Caihui and Zhang, Yong and Qiu, Wenjing},
-  journal = {Submitted},
-  year    = {2026}
+  title={Minimum Description Length based Granular-Ball Tree Regularization for Spectral Clustering},
+  author={Xian, Zeqiang and Liu, Caihui and Zhang, Yong and Qiu, Wenjing},
+  journal={arXiv preprint arXiv:2605.22410},
+  year={2026}
 }
 ```
 

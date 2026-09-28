@@ -2,9 +2,10 @@
 
 > **Minimum Description Length based Granular-Ball Tree Regularization for Spectral Clustering**
 
-MDL-GBTRSC is a spectral clustering framework that uses an MDL-induced granular-ball tree to regularize the sample-level affinity graph. Instead of applying spectral clustering directly to a graph defined only by pairwise distances, the method first learns stable local regions under a description-length criterion and then feeds their coding-scale information back into graph construction.
+MDL-GBTRSC is a fixed-\(K\) spectral clustering method that uses a description-length-driven granular-ball hierarchy to regularize the **original sample-level affinity graph**. The granular balls are not used as graph nodes or clustering representatives. Instead, stable leaf balls provide regional structural scales that are transferred back to sample-to-sample affinities before the final spectral partition.
 
 ---
+
 ## Framework
 
 <p align="center">
@@ -15,73 +16,34 @@ MDL-GBTRSC is a spectral clustering framework that uses an MDL-induced granular-
   <em>Figure 1. Framework of MDL-GBTRSC.</em>
 </p>
 
+---
+
 ## Overview
 
-Spectral clustering is effective for discovering non-convex structures, but its performance is strongly affected by the affinity graph. Fixed graph construction strategies, such as k-nearest-neighbor graphs and RBF graphs, may be sensitive to neighborhood scale, density variation, noise, and weak local connections.
+Spectral clustering can recover non-convex structures, but its performance depends strongly on how the affinity graph is constructed. A single global neighborhood or kernel scale may be inadequate when local density, geometric spread, or connectivity varies across the data.
 
-MDL-GBTRSC connects local granular-ball representation with sample-level graph construction. It builds a graph-continuity-regularized granular-ball tree using the Minimum Description Length principle. The stable leaf balls then provide adaptive coding scales for the final affinity graph.
+MDL-GBTRSC introduces a granular-ball hierarchy as a regional structural description of the sample space. A local description-length criterion determines whether a current ball should be retained or refined. Reciprocal graph continuity is incorporated into this decision so that a candidate split is penalized when it cuts reliable local neighborhood relations.
 
-The resulting graph incorporates three types of information:
+After the hierarchy stabilizes, each terminal granular ball provides a local structural scale derived from its radius and effective variance. These scales regularize the affinities between the original samples. The resulting graph is then partitioned according to its connected-component structure and the prescribed number of clusters \(K\).
 
-- **Sample-level proximity**, captured by local neighborhood affinities.
-- **Neighborhood continuity**, preserved through reciprocal preliminary graph regularization.
-- **Granular-ball-level coding scale**, introduced by stable leaf balls learned under the MDL criterion.
+The method therefore combines three levels of information:
+
+- **Sample-level proximity**, captured by locally scaled neighborhood affinities.
+- **Neighborhood continuity**, introduced through the reciprocal preliminary graph during hierarchy construction.
+- **Regional structural scale**, supplied by stable granular-ball leaves and transferred back to sample-level affinities.
 
 ---
 
 ## Main Idea
 
-MDL-GBTRSC follows a simple principle:
+For a current granular ball \(B\), MDL-GBTRSC compares two local explanations:
 
-> A local split should be accepted only when the reduction in local representation cost is sufficient to compensate for the cost of breaking reliable neighborhood continuity.
+1. **Retain** the current ball as a terminal region.
+2. **Refine** the ball into two child balls.
 
-For each current granular ball, the method compares two local explanations:
+The refinement is accepted only when the reduction in local description length is sufficient to compensate for the continuity cost induced by cutting reciprocal neighborhood relations.
 
-1. **Retain model**  
-   The current ball is retained as a stable leaf ball.
-
-2. **Split model**  
-   The current ball is split into two child balls, while the reciprocal graph-cut cost penalizes the separation of strongly connected neighboring samples.
-
-The model with the shorter description length is selected. This process is repeated until no leaf ball has a positive MDL gain.
-
----
-
-## Method Pipeline
-
-### 1. Data Preprocessing and Preliminary Graph Construction
-
-The input data are first normalized into a comparable feature scale. A reciprocal preliminary graph is then constructed from local neighborhood relations. This graph is not directly used as the final clustering graph. Instead, it provides neighborhood-continuity evidence for evaluating candidate granular-ball splits.
-
-### 2. Graph-Continuity-Regularized MDL Tree Construction
-
-Starting from the root ball containing all samples, MDL-GBTRSC grows a granular-ball tree in a best-first manner. For each current leaf ball, the retain model and the split model are compared by their description lengths. A split is accepted only when it gives a positive MDL gain after considering the reciprocal graph-cut cost.
-
-### 3. Tree-Regularized Affinity Construction
-
-After tree construction, each sample belongs to exactly one stable leaf ball. The radius and effective variance of each leaf ball define a local coding scale. These coding scales are incorporated into the edge cost of the final graph, allowing affinities to reflect both pairwise distances and local granular-ball structures.
-
-A shared-neighbor bridge code is further used when the component-count condition is satisfied. This term reduces weak bridge affinities with limited common-neighborhood support without requiring an additional user-specified threshold.
-
-### 4. Graph Selection and Clustering
-
-The final graph is selected from the reciprocal and completed tree-regularized graphs. If the reciprocal graph already contains the specified number of connected components, the component labels are used directly. Otherwise, spectral clustering is performed on the selected graph.
-
----
-
-## Key Features
-
-- **MDL-based local model selection**  
-  Granular-ball generation is formulated as a description-length comparison problem.
-
-- **Graph-continuity regularization**  
-  Reciprocal neighborhood relations are used to discourage splits that break reliable local continuity.
-
-- **Adaptive local coding scales**  
-  Stable leaf balls provide local scale information for tree-regularized affinity construction.
-
-- **No additional bridge threshold**  
-  The shared-neighbor bridge adjustment is activated by a graph component-count condition rather than a manually selected threshold.
+The hierarchy is built recursively until no admissible local refinement yields a positive gain. The resulting stable leaves are then used only to estimate regional scales; all observations remain vertices of the final graph.
 
 ---
 
@@ -106,7 +68,7 @@ This repository is released for academic research. The license information will 
 
 ## Related MDL Granular-Ball Works
 
-MDL-GBTRSC is developed as part of an ongoing line of research on **MDL-based granular-ball learning**. Related works include:
+MDL-GBTRSC is part of an ongoing line of research on MDL-based granular-ball learning.
 
 1. **MDL-GBG: A Non-parametric and Interpretable Granular-Ball Generation Method for Clustering**  
    Zeqiang Xian, Caihui Liu, Yong Zhang, Wenjing Qiu, Duoqian Miao, Witold Pedrycz  
@@ -116,7 +78,7 @@ MDL-GBTRSC is developed as part of an ongoing line of research on **MDL-based gr
    Zeqiang Xian, Caihui Liu, Yong Zhang, Wenjing Qiu, Duoqian Miao, Witold Pedrycz  
    <https://doi.org/10.48550/arXiv.2605.11406>
 
-We warmly welcome researchers interested in interpretable, non-parametric, and MDL-based granular-ball learning to follow this research direction and discuss related ideas.
+Researchers interested in interpretable, non-parametric, and MDL-based granular-ball learning are welcome to follow this research direction and discuss related ideas.
 
 ---
 
